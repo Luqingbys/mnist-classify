@@ -2,20 +2,23 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 from utils.draw import drawCharts
+from utils.logger import get_logger
 
 
-def train(net: nn.Module, dataLoader, optimizer, lossFunc, logger, device='cpu'):
+def train(net: nn.Module, dataLoader, optimizer, lossFunc, output, device='cpu'):
     ''' 
     net: 模型
     dataLoader: 数据读取器
     optimizer: 优化器
     lossFunc: 损失函数
+    output: 训练日志保存路径
     device: cpu or gpu
     '''
+    logger = get_logger(path=output, filename='train.log')
     logger.info('Start trainning......')
-    EPOCHS = 10
+    EPOCHS = 50
     # 存储训练过程
-    history = {'Test Loss': [], 'Test Accuracy': []}
+    history = {'Train Loss': [], 'Train Accuracy': []}
     for epoch in range(1, EPOCHS + 1):
         # 添加一个进度条，增加可视化效果
         processBar = tqdm(dataLoader, unit='step')
@@ -35,12 +38,18 @@ def train(net: nn.Module, dataLoader, optimizer, lossFunc, logger, device='cpu')
             loss.backward()
 
             optimizer.step()
+            history['Train Loss'].append(loss.item())
+            history['Train Accuracy'].append(accuracy.item())
             processBar.set_description("[%d/%d] Loss: %.4f, Acc: %.4f" %
                                     (epoch, EPOCHS, loss.item(), accuracy.item()))
+            
         logger.info('Epoch:[{}/{}]\t loss={:.5f}\t acc={:.3f}'.format(epoch , EPOCHS, loss, accuracy))
+        # history['Train Loss'].append(loss.item())
+        # history['Train Accuracy'].append(accuracy.item())
         processBar.close()
     
     logger.info('Finish training!')
+    torch.save(net, output+'model.pkl')
     drawCharts(history)
     
 
