@@ -21,6 +21,7 @@ class FCNet(nn.Module):
 
         
     def forward(self, input: torch.TensorType):
+        # print('input: ', input.shape)
         '''由于是灰度图，最开始的输入input尺寸为(batch_size, 1, 28, 28)'''
         x = torch.flatten(input, 1) # x: (batch_size, 28*28)
         output = self.fc_model(x)
