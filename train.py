@@ -16,7 +16,7 @@ def train(net: nn.Module, dataLoader, optimizer, lossFunc, output, device='cpu')
     '''
     logger = get_logger(path=output, filename='train.log')
     logger.info('Start trainning......')
-    EPOCHS = 50
+    EPOCHS = 5
     # 存储训练过程
     history = {'Train Loss': [], 'Train Accuracy': []}
     for epoch in range(1, EPOCHS + 1):
@@ -29,6 +29,9 @@ def train(net: nn.Module, dataLoader, optimizer, lossFunc, output, device='cpu')
 
             trainImgs = trainImgs.to(device)
             labels = labels.to(device)
+
+            # m, s = trainImgs.mean(), trainImgs.std()
+            # trainImgs = (trainImgs - m) / s
 
             net.zero_grad()
             outputs = net(trainImgs)
@@ -43,9 +46,13 @@ def train(net: nn.Module, dataLoader, optimizer, lossFunc, output, device='cpu')
             processBar.set_description("[%d/%d] Loss: %.4f, Acc: %.4f" %
                                     (epoch, EPOCHS, loss.item(), accuracy.item()))
             
+            if step % 1000 == 0:
+                history['Train Loss'].append(loss.item())
+                history['Train Accuracy'].append(accuracy.item())
+
         logger.info('Epoch:[{}/{}]\t loss={:.5f}\t acc={:.3f}'.format(epoch , EPOCHS, loss, accuracy))
-        # history['Train Loss'].append(loss.item())
-        # history['Train Accuracy'].append(accuracy.item())
+        history['Train Loss'].append(loss.item())
+        history['Train Accuracy'].append(accuracy.item())
         processBar.close()
     
     logger.info('Finish training!')
