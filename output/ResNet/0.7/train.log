@@ -1,0 +1,7 @@
+[2023-03-16 18:14:59,341][train.py][line:18][INFO] Start trainning......
+[2023-03-16 18:16:41,819][train.py][line:53][INFO] Epoch:[1/5]	 loss=0.33664	 acc=0.933
+[2023-03-16 18:18:20,477][train.py][line:53][INFO] Epoch:[2/5]	 loss=0.16919	 acc=0.933
+[2023-03-16 18:20:00,767][train.py][line:53][INFO] Epoch:[3/5]	 loss=0.00059	 acc=1.000
+[2023-03-16 18:21:42,112][train.py][line:53][INFO] Epoch:[4/5]	 loss=0.00020	 acc=1.000
+[2023-03-16 18:23:25,356][train.py][line:53][INFO] Epoch:[5/5]	 loss=0.00124	 acc=1.000
+[2023-03-16 18:23:25,356][train.py][line:58][INFO] Finish training!

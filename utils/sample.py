@@ -4,6 +4,13 @@ import numpy as np
 import random
 from tqdm import tqdm
 import os
+import argparse
+
+
+parser = argparse.ArgumentParser('Sample by certain ratio from initial MNIST dataset.')
+parser.add_argument('--path', type=str, default='data/MNIST/png/', help='Select a path which saves the whole png files.')
+parser.add_argument('--ratio', type=float, default=0.7, help='Input the ratio the sample from MNIST.')
+args = parser.parse_args()
 
 
 def get_each_nums(path):
@@ -25,18 +32,19 @@ def sample_from_mnist(ratio, path):
     print(each_num)
     num_dict = get_each_nums(path)
     sample = []
-    sample.append(np.array(['path', 'label']))
+    # sample.append(np.array(['path', 'label']))
     for i in tqdm(range(10)):
         print("Sampling randomly for index {}......".format(i))
         random_list = random.sample(range(num_dict[str(i)]), int(each_num)) # 注意这里要做强制类型转换，不然报错
         for n in random_list:
             sample.append(np.array([str(i) + '/mnist_' + str(n) + '-' + str(i) + '.png', str(i)]))
     sample = np.array(sample)
+    np.random.shuffle(sample)
     np.savetxt(f'train_{str(ratio)}.csv', sample, delimiter=',', fmt='%s') # 保存str类型ndarray必须加上fmt=%s
     print('Success to sample MNIST PNG image files!')
 
 
 if __name__ == '__main__':
-    path = 'data/MNIST/png/'
-    sample_from_mnist(ratio=0.1, path='data/MNIST/png/')
+    # path = 'data/MNIST/png/'
+    sample_from_mnist(ratio=args.ratio, path=args.path)
     # print(get_each_nums(path))

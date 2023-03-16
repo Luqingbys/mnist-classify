@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser(description='mnist手写数字识别数据集�
 parser.add_argument('--module', type=str, help='select a module file to do classification', default='fc')
 parser.add_argument('--model', type=str, help='select a model to do classification', default='FCNet')
 parser.add_argument('--output', type=str, help='select a path to save the running result', default='output')
+parser.add_argument('--ratio', type=float, default=0.7, help='input a ratio to sample from MNSIT.')
 args = parser.parse_args()
 
 
@@ -29,9 +30,10 @@ args = parser.parse_args()
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 # device = 'cpu'
 
-# 读取训练集.csv文件
-train_df = pd.read_csv('./train_0.1.csv')
-train_ds = sampleDataset(df=train_df)
+if args.ratio != 1.0:
+    # 读取训练集.csv文件
+    train_df = pd.read_csv(f'./train_{args.ratio}.csv')
+    train_ds = sampleDataset(df=train_df)
 
 #这个函数包括了两个操作：将图片转换为张量，以及将图片进行归一化处理
 transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
@@ -39,29 +41,28 @@ transform = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
 
 path = './data/'  #数据集下载后保存的目录
 #设定每一个Batch的大小
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 
 #下载训练集和测试集
 # trainData = torchvision.datasets.MNIST(path,train = True,transform = transform, download = True)
 testData = torchvision.datasets.MNIST(path,train = False,transform = transform)
 
- 
 #构建数据集和测试集的DataLoader
 trainDataLoader = torch.utils.data.DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True)
-# trainDataLoader = torch.utils.data.DataLoader(dataset = trainData, batch_size = BATCH_SIZE,shuffle = True)
+# trainDataLoader = torch.utils.data.DataLoader(dataset = trainData, batch_size = BATCH_SIZE, shuffle = True)
 testDataLoader = torch.utils.data.DataLoader(dataset = testData, batch_size = BATCH_SIZE)
 
 # 动态定义好模型，优化器，损失函数
 # net = importlib.import_module('.'+args.module+'.'+args.model, package='model')
 module = __import__('model.'+args.module, fromlist=[''])
 model = getattr(module, args.model)
-net = model()
-print(net)
+net: nn.Module = model()
+# print(net)
 net = net.to(device)
 
 loss = torch.nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(net.parameters())
+optimizer = torch.optim.Adam(net.parameters(), lr=1e-3)
 
-train(net=net, dataLoader=trainDataLoader, optimizer=optimizer, lossFunc=loss, output=args.output+'/'+args.model+'/', device=device)
-
-test(net, dataLoader=testDataLoader, loss_func=loss, batch_size=BATCH_SIZE, output=args.output+'/'+args.model+'/', device=device)
+output_path = args.output+'/'+args.model+'/'+str(args.ratio)+'/'
+# train(net=net, dataLoader=trainDataLoader, optimizer=optimizer, lossFunc=loss, output=output_path, device=device)
+test(net, dataLoader=testDataLoader, loss_func=loss, batch_size=BATCH_SIZE, output=output_path, device=device)

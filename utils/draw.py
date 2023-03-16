@@ -17,3 +17,13 @@ def drawCharts(history: dict):
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.show()
+
+
+def drawMPR(precision_dict: dict, recall_dict: dict, save_path):
+    plt.figure()
+    plt.step(recall_dict['macro'], precision_dict['macro'], where='post')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Average precision score, micro-averaged over all classes')
+    plt.savefig(f'{save_path}Matro PR.png')
+    plt.show()
